@@ -10,10 +10,16 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { Calendar } from 'react-native-calendars';
+import CameraScreen from './CameraScreen';
 
 const windowHeight = Dimensions.get('window').height;
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 const mockMeals = [
   {
@@ -30,7 +36,7 @@ const mockMeals = [
   },
 ];
 
-export default function App() {
+function HomeScreen({ navigation }: any) {
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -63,18 +69,64 @@ export default function App() {
       </View>
 
       {/* Floating Button */}
-      <TouchableOpacity style={styles.plusButton}>
+      <TouchableOpacity style={styles.plusButton} onPress={() => navigation.navigate('Camera')}>
         <Text style={styles.plusText}>+</Text>
       </TouchableOpacity>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <Ionicons name="home" size={28} color="#4B8673" />
-        <Ionicons name="calendar" size={28} color="#4B8673" />
-        <Ionicons name="camera" size={28} color="#4B8673" />
-        <Ionicons name="settings" size={28} color="#4B8673" />
-      </View>
     </SafeAreaView>
+  );
+}
+
+function CalendarScreen() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <Calendar current={new Date().toISOString().split('T')[0]} />
+    </SafeAreaView>
+  );
+}
+
+function SettingsScreen() {
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={{ fontSize: 20, marginTop: 20, textAlign: 'center' }}>Settings Screen</Text>
+    </SafeAreaView>
+  );
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ tabBarIcon: ({ color }) => <Ionicons name="home" size={24} color={color} /> }}
+      />
+      <Tab.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{ tabBarIcon: ({ color }) => <Ionicons name="calendar" size={24} color={color} /> }}
+      />
+      <Tab.Screen
+        name="Camera"
+        component={CameraScreen}
+        options={{ tabBarIcon: ({ color }) => <Ionicons name="camera" size={24} color={color} /> }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ tabBarIcon: ({ color }) => <Ionicons name="settings" size={24} color={color} /> }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="Camera" component={CameraScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -141,12 +193,4 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   plusText: { color: 'white', fontSize: 30, lineHeight: 34 },
-  bottomNav: {
-    height: 60,
-    borderTopWidth: 1,
-    borderTopColor: '#DDD',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
 });
